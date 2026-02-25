@@ -1,22 +1,30 @@
 package calculator
+import (
+	"errors"
+	"calculator/Calculator/database"
+)
 
 type DiscountCalculator struct{
 	minpurchase int
-	discountamount int
+	discountrepo database.Repository
 }
 
-func NewDiscountCalculator(minpurchase int,discountamount int) *DiscountCalculator{
+func NewDiscountCalculator(minpurchase int,discountrepo database.Repository) (*DiscountCalculator,error){
+	if minpurchase==0{
+		return &DiscountCalculator{} ,errors.New("Purchase amount cannot be zero")
+	}
 	return &DiscountCalculator{
 		minpurchase:minpurchase,
-		discountamount: discountamount,
+		discountrepo: discountrepo,
 
-	}
+	},nil
 }
 
 func (c *DiscountCalculator) Calculate(purchaseamount int) int {
 	if purchaseamount>c.minpurchase {
 		multiplier :=purchaseamount/c.minpurchase
-		return purchaseamount-c.discountamount*multiplier
+		discount :=c.discountrepo.FindCurrentDiscount()
+		return purchaseamount-(discount*multiplier)
 	}
 
 	
